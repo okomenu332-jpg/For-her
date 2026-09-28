@@ -228,13 +228,14 @@
     position: relative;
   }
   .tile:hover { transform: scale(1.06); z-index: 10; }
-  .tile img {
+  .tile video {
     width: 100%;
     height: 160px;
     object-fit: cover;
     border-radius: 6px;
     display: block;
     background: #222;
+    pointer-events: none;
   }
   .tile .title {
     position: absolute;
@@ -247,6 +248,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #fff;
+    pointer-events: none;
   }
   .tile .play-icon {
     position: absolute;
@@ -263,6 +265,7 @@
     opacity: 0;
     transition: opacity 0.2s;
     font-size: 20px;
+    pointer-events: none;
   }
   .tile:hover .play-icon { opacity: 1; }
 
@@ -286,11 +289,13 @@
     overflow: hidden;
     box-shadow: 0 0 60px rgba(229,9,20,0.4);
     position: relative;
+    background: #000;
   }
-  #modal iframe {
+  #modal video {
     width: 100%;
     height: 100%;
-    border: none;
+    object-fit: contain;
+    background: #000;
   }
   #modal .close {
     position: absolute;
@@ -327,7 +332,7 @@
     .navbar .links { display: none; }
     .row { padding: 0 20px; }
     .tile { flex: 0 0 200px; }
-    .tile img { height: 120px; }
+    .tile video { height: 120px; }
     #profiles h1 { font-size: 2rem; }
     .avatar { width: 100px; height: 100px; font-size: 50px; }
   }
@@ -366,7 +371,7 @@
   <div class="hero">
     <h1>My Sweet Girl</h1>
     <p>A collection of moments, memories, and everything in between. Made just for you.</p>
-    <button class="play-btn" onclick="playVideo('GTW7uXW6Evs')">▶ Play</button>
+    <button class="play-btn" onclick="playVideo(0)">▶ Play</button>
   </div>
 
   <div class="row">
@@ -388,27 +393,25 @@
 <div id="modal">
   <div class="player">
     <button class="close" onclick="closeVideo()">✕</button>
-    <iframe id="videoFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <video id="videoPlayer" controls playsinline></video>
   </div>
 </div>
 
 <script>
   const videos = [
-    { title: "Your Pretty Self",   id: "GTW7uXW6Evs" },
-    { title: "My Happy Space",     id: "rV5GtlXOLe8" },
-    { title: "Hot Mama",           id: "7tPsniEfZmM" },
-    { title: "We Grow Together",   id: "JBnNgrJm8uU" }
+    { title: "My Pretty Girl",    url: "https://pub-f724c5bca80a49d695a64179b72022eb.r2.dev/My%20pretty%20girl%20.mp4" },
+    { title: "My Happy Space",    url: "https://pub-f724c5bca80a49d695a64179b72022eb.r2.dev/My%20happy%20space%20.mp4" },
+    { title: "Hot Mama",          url: "https://pub-f724c5bca80a49d695a64179b72022eb.r2.dev/Hot%20mama.mp4" },
+    { title: "We Grow Together",  url: "https://pub-f724c5bca80a49d695a64179b72022eb.r2.dev/We%20grow%20together%20.mp4" }
   ];
 
   // Build tiles
   function makeTile(v) {
     const tile = document.createElement('div');
     tile.className = 'tile';
-    tile.onclick = () => playVideo(v.id);
+    tile.onclick = () => playVideo(videos.indexOf(v));
     tile.innerHTML = `
-      <img src="https://img.youtube.com/vi/${v.id}/maxresdefault.jpg"
-           onerror="this.src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'"
-           alt="${v.title}">
+      <video src="${v.url}#t=1" preload="metadata" muted></video>
       <div class="play-icon">▶</div>
       <div class="title">${v.title}</div>
     `;
@@ -437,18 +440,20 @@
   }
 
   // Play video
-  function playVideo(id) {
+  function playVideo(index) {
     const modal = document.getElementById('modal');
-    const frame = document.getElementById('videoFrame');
-    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    const player = document.getElementById('videoPlayer');
+    player.src = videos[index].url;
+    player.play();
     modal.classList.add('show');
   }
 
   // Close video
   function closeVideo() {
     const modal = document.getElementById('modal');
-    const frame = document.getElementById('videoFrame');
-    frame.src = '';
+    const player = document.getElementById('videoPlayer');
+    player.pause();
+    player.src = '';
     modal.classList.remove('show');
   }
 
